@@ -93,6 +93,9 @@ let users = [
   { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
 ];
 
+// ID counter to ensure unique IDs even after deletions
+let nextUserId = 3;
+
 /**
  * GET /api/users
  * Retrieve all users
@@ -142,7 +145,7 @@ app.post('/api/users', (req, res) => {
   }
   
   const newUser = {
-    id: users.length + 1,
+    id: nextUserId++,
     name,
     email
   };
@@ -215,6 +218,9 @@ let posts = [
   { id: 2, title: 'Understanding Middleware', content: 'Middleware functions have access to...', userId: 2 }
 ];
 
+// ID counter to ensure unique IDs even after deletions
+let nextPostId = 3;
+
 /**
  * GET /api/posts
  * Retrieve all posts with optional filtering
@@ -271,7 +277,7 @@ app.post('/api/posts', (req, res) => {
   }
   
   const newPost = {
-    id: posts.length + 1,
+    id: nextPostId++,
     title,
     content,
     userId: parseInt(userId)

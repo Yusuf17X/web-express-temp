@@ -25,6 +25,9 @@ let products = [
   { id: 3, name: 'Desk', price: 299, category: 'Furniture' }
 ];
 
+// ID counter to ensure unique IDs even after deletions
+let nextProductId = 4;
+
 /**
  * GET /api/products
  * Get all products with optional filtering
@@ -105,7 +108,7 @@ router.post('/', (req, res) => {
   }
   
   const newProduct = {
-    id: products.length + 1,
+    id: nextProductId++,
     name,
     price,
     category

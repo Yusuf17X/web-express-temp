@@ -106,10 +106,9 @@ movieSchema.post("save", function (doc) {});
 
 // Query middleware
 // the this here is a query object
-movieSchema.pre(/^find/, function (next) {
+movieSchema.pre(/^find/, function () {
   this.find({ isSecret: { $ne: true } });
   this.start = Date.now();
-  next();
 });
 
 movieSchema.post(/^find/, function (docs) {

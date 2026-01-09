@@ -4,13 +4,13 @@ const movieController = require("../controllers/movieController");
 
 const router = express.Router();
 
-router.param("id", (req, res, next, val) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ status: "fail", message: "Invalid ID!" });
-  }
+// router.param("id", (req, res, next, val) => {
+//   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//     return res.status(400).json({ status: "fail", message: "Invalid ID!" });
+//   }
 
-  next();
-});
+//   next();
+// });
 
 router
   .route("/top-5")

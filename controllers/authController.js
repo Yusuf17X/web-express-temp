@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
+const sendEmail = require("./../utils/email");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -88,3 +89,57 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // roles = ["editor", "admin"]
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action!", 403),
+      );
+    }
+    next();
+  };
+};
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  // Get user based on POSTed email
+  const user = await User.findOne({ email: req.body.email });
+
+  // If not user with that email.. hacker wont know it does not exist
+  if (user) {
+    // Generate the random token
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    const resetURL = `${req.protocol}://${req.get("host")}/api/v1/users/reset-password/${resetToken}`;
+
+    const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}\nIf you did not forget your password please ignore this email!`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Password reset token (valid for 10 minutes)",
+        message,
+      });
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return next(
+        new AppError(
+          "There was error sending the email. Try again later!",
+          500,
+        ),
+      );
+    }
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Token sent via email!",
+  });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {});

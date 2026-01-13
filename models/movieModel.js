@@ -51,11 +51,13 @@ const movieSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: [true, "A movie must have a description!"],
-      validate: function (value) {
-        //! the this keyword here point to the current document only when we are creating a new document :( So wont work on update
-        return value.length > this.summary.length;
+      validate: {
+        validator: function (value) {
+          //! the this keyword here point to the current document only when we are creating a new document :( So wont work on update
+          return value.length > this.summary.length;
+        },
+        message: "Description must be longer than the summary!",
       },
-      message: "Description must be longer than the summary!",
     },
     posterImage: {
       type: String,
@@ -107,7 +109,7 @@ movieSchema.post("save", function (doc) {});
 // Query middleware
 // the this here is a query object
 movieSchema.pre(/^find/, function () {
-  this.find({ isSecret: { $ne: true } });
+  this.find({ isReleased: { $ne: false } });
   this.start = Date.now();
 });
 
@@ -118,7 +120,7 @@ movieSchema.post(/^find/, function (docs) {
 // Aggregation middleware/hook
 movieSchema.pre("aggregate", function () {
   // console.log(this.pipeline())
-  this.pipeline().unshift({ $match: { isSecret: { $ne: true } } });
+  this.pipeline().unshift({ $match: { isReleased: { $ne: false } } });
 });
 
 const Movie = mongoose.model("Movie", movieSchema);

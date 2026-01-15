@@ -14,13 +14,16 @@ router.post("/forgot-password", authController.forgotPassword);
 router.patch("/reset-password/:token", authController.resetPassword);
 
 // Update password without having to forget it :)
-router.post(
-  "/update-password",
+router.patch(
+  "/update-my-password",
   authController.protect,
   authController.updatePassword,
 );
 
-//TODO TEMP ROUTE
-router.patch("/:id", userController.updateUser);
+// Update user data
+router.patch("/update-me", authController.protect, userController.updateMe);
+
+// Delete user
+router.delete("/delete-me", authController.protect, userController.deleteMe);
 
 module.exports = router;
